@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using Orient.Client;
-using Orient.Nunit.Test;
 
 namespace Orient.Nunit.Test.Pool
 {

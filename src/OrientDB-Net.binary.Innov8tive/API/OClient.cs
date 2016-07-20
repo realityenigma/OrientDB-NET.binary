@@ -25,7 +25,7 @@ namespace Orient.Client
             }
         }
 
-        public static int BufferLenght { get; set; }
+        public static int BufferLength { get; set; }
         public static ORecordFormat Serializer { get; set; }
         public static bool UseTokenBasedSession { get; set; }
 
@@ -35,7 +35,7 @@ namespace Orient.Client
         {
             _syncRoot = new object();
             _databasePools = new List<DatabasePool>();
-            BufferLenght = 1024;
+            BufferLength = 1024;
             Serializer = ORecordFormat.ORecordDocument2csv;
             ClientID = "null";
             /* 
@@ -67,7 +67,7 @@ namespace Orient.Client
                 {
                     databasePool = new DatabasePool(hostname, port, databaseName, databaseType, userName, userPassword, poolSize, alias);
 
-                    _databasePools.Add(databasePool); 
+                    _databasePools.Add(databasePool);
                 }
 
                 return databasePool.Release;
@@ -120,7 +120,7 @@ namespace Orient.Client
 
                     if (pool != null)
                     {
-                        // deque free database connection if the pool has one
+                        // dequeue free database connection if the pool has one
                         if (pool.CurrentSize > 0)
                         {
                             connection = pool.DequeueConnection();

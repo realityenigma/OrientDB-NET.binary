@@ -1,6 +1,6 @@
-﻿using System.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Orient.Client;
+using System.Linq;
 
 namespace Orient.Nunit.Test.Query
 {

@@ -1,6 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NUnit.Framework;
 using Orient.Client;
-using NUnit.Framework;
 
 
 namespace Orient.Nunit.Test.Query

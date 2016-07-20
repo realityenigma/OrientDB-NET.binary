@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using Orient.Client;
-using Orient.Nunit.Test;
+using System.Linq;
 
 namespace Orient.Nunit.Test.Graph
 {
