@@ -46,7 +46,9 @@ namespace Orient.Client
 
         internal Connection GetConnection()
         {
-            return _connectionPool.GetConnection();
+            var connection = _connectionPool.GetConnection();
+            connection.Database = this;
+            return connection;
         }
 
         public ODatabase(string hostName, int port, string databaseName, ODatabaseType type, string userName, string userPassword, string alias, bool isReusable)
@@ -63,10 +65,7 @@ namespace Orient.Client
         //    Transaction = new OTransaction(GetConnection());
         //}
 
-        public int ProtocolVersion
-        {
-            get { return GetConnection().ProtocolVersion; }
-        }
+        public int ProtocolVersion => GetConnection().ProtocolVersion;
 
         private Task<ODocument> retrieveDataBaseProperties()
         {

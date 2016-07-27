@@ -32,6 +32,18 @@ namespace Orient.Console
 
         private static void ConnectionPoolTest()
         {
+            OServer server = new OServer(Configuration["ConnectionStrings:DefaultConnection:Server"],
+                int.Parse(Configuration["ConnectionStrings:DefaultConnection:Port"]),
+                Configuration["ConnectionStrings:DefaultConnection:Username"],
+                Configuration["ConnectionStrings:DefaultConnection:Password"]);
+
+            if (server.DatabaseExist(Configuration["ConnectionStrings:DefaultConnection:DefaultDB"], OStorageType.PLocal))
+            {
+                server.DropDatabase(Configuration["ConnectionStrings:DefaultConnection:DefaultDB"], OStorageType.PLocal);
+            }
+
+            server.CreateDatabase(Configuration["ConnectionStrings:DefaultConnection:DefaultDB"], ODatabaseType.Graph, OStorageType.PLocal);
+
             using (ODatabase database = new ODatabase(Configuration["ConnectionStrings:DefaultConnection:Server"],
                 int.Parse(Configuration["ConnectionStrings:DefaultConnection:Port"]),
                 Configuration["ConnectionStrings:DefaultConnection:DefaultDB"],
@@ -41,9 +53,13 @@ namespace Orient.Console
                 "Test",
                 false))
             {
-                Parallel.For(0, 100000, (i) =>
+               
+                database.Create.Class("Person").Run();
+                database.Insert().Into("Person").Set("Name", $"John").Set("LastName", $"Doe").Set("Age", 99).Run();
+                Parallel.For(0, 1000000, (i) =>
                 {
-                    database.Insert().Into("Person").Set("Name", $"John{i}").Set("LastName", $"Doe{i}").Set("Age", i).Run();
+                    ODocument document = database.Insert().Into("Person").Set("Name", $"John{i}").Set("LastName", $"Doe{i}").Set("Age", i).Run();
+                    //System.Console.WriteLine(document.ORID);
                 });
             }
         }
