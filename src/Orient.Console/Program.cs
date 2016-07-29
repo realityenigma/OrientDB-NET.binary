@@ -49,9 +49,7 @@ namespace Orient.Console
                 Configuration["ConnectionStrings:DefaultConnection:DefaultDB"],
                 ODatabaseType.Graph,
                 Configuration["ConnectionStrings:DefaultConnection:Username"],
-                Configuration["ConnectionStrings:DefaultConnection:Password"],
-                "Test",
-                false))
+                Configuration["ConnectionStrings:DefaultConnection:Password"]))
             {
                
                 database.Create.Class("Person").Run();

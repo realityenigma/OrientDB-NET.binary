@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Serializers;
 using System.IO;
+using Orient.Client.API;
 
 namespace Orient.Client.Protocol
 {
@@ -27,8 +28,6 @@ namespace Orient.Client.Protocol
         internal string UserName { get; private set; }
         internal string UserPassword { get; private set; }
 
-        internal string Alias { get; set; }
-        internal bool IsReusable { get; set; }
         internal short ProtocolVersion { get; set; }
 
         internal int SessionId { get; private set; }
@@ -74,13 +73,13 @@ namespace Orient.Client.Protocol
 
         public byte[] Token { get; internal set; }
 
-        internal Connection(string hostname, int port, string databaseName, ODatabaseType databaseType, string userName, string userPassword, string alias, bool isReusable)
+        public OTransaction ConnectionTransaction { get; private set; }
+
+        internal Connection(string hostname, int port, string databaseName, ODatabaseType databaseType, string userName, string userPassword)
         {
             Hostname = hostname;
             Port = port;
             Type = ConnectionType.Database;
-            Alias = alias;
-            IsReusable = isReusable;
             ProtocolVersion = 0;
             SessionId = -1;
             UseTokenBasedSession = OClient.UseTokenBasedSession;
@@ -89,6 +88,7 @@ namespace Orient.Client.Protocol
             DatabaseType = databaseType;
             UserName = userName;
             UserPassword = userPassword;
+            ConnectionTransaction = new OTransaction(this);
             InitializeDatabaseConnection(databaseName, databaseType, userName, userPassword);
         }
 
@@ -97,10 +97,10 @@ namespace Orient.Client.Protocol
             Hostname = hostname;
             Port = port;
             Type = ConnectionType.Server;
-            IsReusable = false;
             ProtocolVersion = 0;
             SessionId = -1;
             UseTokenBasedSession = OClient.UseTokenBasedSession;
+            ConnectionTransaction = new OTransaction(this);
 
             UserName = userName;
             UserPassword = userPassword;

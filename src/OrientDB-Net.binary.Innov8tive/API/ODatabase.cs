@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,7 @@ using Orient.Client.Protocol;
 using Orient.Client.Protocol.Operations;
 using Orient.Client.Protocol.Operations.Command;
 using Orient.Client.Protocol.Serializers;
+using OrientDB_Net.binary.Innov8tive.API;
 using OrientDB_Net.binary.Innov8tive.Protocol;
 
 namespace Orient.Client
@@ -42,7 +44,7 @@ namespace Orient.Client
             }
         }
 
-        public OTransaction Transaction { get; private set; }
+        public OTransaction Transaction => _connectionPool.GetConnection().ConnectionTransaction;
 
         internal Connection GetConnection()
         {
@@ -51,19 +53,17 @@ namespace Orient.Client
             return connection;
         }
 
-        public ODatabase(string hostName, int port, string databaseName, ODatabaseType type, string userName, string userPassword, string alias, bool isReusable)
+        public ODatabase(string hostName, int port, string databaseName, ODatabaseType type, string userName, string userPassword)
         {
-            _connectionPool = new ConnectionPool(hostName, port, databaseName, type, userName, userPassword, alias, isReusable);
+            _connectionPool = new ConnectionPool(hostName, port, databaseName, type, userName, userPassword);
+            ClientCache = new ConcurrentDictionary<ORID, ODocument>();
         }
 
-        //public ODatabase(string alias)
-        //{
-        //    GetConnection() = OClient.ReleaseConnection(alias);
-        //    GetConnection().Database = this;
-        //    _containsConnection = true;
-        //    ClientCache = new Dictionary<ORID, ODocument>();
-        //    Transaction = new OTransaction(GetConnection());
-        //}
+        public ODatabase(ConnectionOptions options)
+        {
+            _connectionPool = new ConnectionPool(options.HostName, options.Port, options.DatabaseName, options.DatabaseType, options.UserName, options.Password);
+            ClientCache = new ConcurrentDictionary<ORID, ODocument>();
+        }
 
         public int ProtocolVersion => GetConnection().ProtocolVersion;
 
@@ -74,7 +74,7 @@ namespace Orient.Client
                 var document = Load.ORID(new ORID(0, 0)).Run();
 
                 byte[] rawByte = document.GetField<byte[]>("RawBytes");
-                var str = Encoding.UTF8.GetString(rawByte,0,rawByte.Length);
+                var str = Encoding.UTF8.GetString(rawByte, 0, rawByte.Length);
                 var values = str.Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries);
                 var doc = new ODocument();
                 doc.SetField("Version", values[0]);
@@ -294,14 +294,7 @@ namespace Orient.Client
             {
                 GetConnection().Database = null;
 
-                if (GetConnection().IsReusable)
-                {
-                    OClient.ReturnConnection(GetConnection());
-                }
-                else
-                {
-                    GetConnection().Dispose();
-                }
+                GetConnection().Dispose();
 
                 _containsConnection = false;
             }
